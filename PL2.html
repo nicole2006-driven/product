@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product JSON Example</title>
+</head>
+<body>
+
+<h2>Product List</h2>
+
+<button onclick="showProducts()">Show All Products</button>
+<br><br>
+
+Enter Minimum Price:
+<input type="number" id="minPrice">
+<button onclick="filterProducts()">Filter</button>
+
+<br><br>
+
+<button onclick="loadData()">Simulate E-Commerce Fetch</button>
+<button onclick="loadDataWithError()">Simulate Error Case</button>
+
+<script>
+
+// -------------------- PART 1 : JSON PRODUCTS --------------------
+
+let products = [
+    { id: 1, name: "Laptop", price: 55000 },
+    { id: 2, name: "Mobile", price: 20000 },
+    { id: 3, name: "Headphones", price: 3000 },
+    { id: 4, name: "Keyboard", price: 1500 }
+];
+
+function showProducts() {
+    console.clear();
+    console.log("All Products:");
+    
+    products.forEach(function(product) {
+        console.log("ID:", product.id,
+                    "| Name:", product.name,
+                    "| Price:", product.price);
+    });
+}
+
+function filterProducts() {
+    let min = document.getElementById("minPrice").value;
+
+    if (min === "") {
+        alert("Please enter minimum price");
+        return;
+    }
+
+    let filtered = products.filter(function(product) {
+        return product.price >= min;
+    });
+
+    console.clear();
+    console.log("Filtered Products (Price >= " + min + "):");
+
+    filtered.forEach(function(product) {
+        console.log("ID:", product.id,
+                    "| Name:", product.name,
+                    "| Price:", product.price);
+    });
+}
+
+
+// -------------------- PART 2 : ASYNC E-COMMERCE SIMULATION --------------------
+
+function fetchProducts() {
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            resolve([
+                { id: 1, name: "Laptop" },
+                { id: 2, name: "Mobile" }
+            ]);
+        }, 2000);
+    });
+}
+
+function fetchReviews() {
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            resolve([
+                { productId: 1, review: "Very Good" },
+                { productId: 2, review: "Average" }
+            ]);
+        }, 1500);
+    });
+}
+
+async function loadData() {
+    try {
+        console.log("Fetching data in parallel...");
+
+        let results = await Promise.all([
+            fetchProducts(),
+            fetchReviews()
+        ]);
+
+        console.log("Products:", results[0]);
+        console.log("Reviews:", results[1]);
+
+    } catch (error) {
+        console.log("Error:", error);
+    }
+}
+
+
+// -------------------- ERROR CASE --------------------
+
+function fetchReviewsWithError() {
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            reject("Failed to fetch reviews");
+        }, 1500);
+    });
+}
+
+async function loadDataWithError() {
+    try {
+        console.log("Fetching with one failure...");
+
+        let results = await Promise.all([
+            fetchProducts(),
+            fetchReviewsWithError()
+        ]);
+
+        console.log(results);
+
+    } catch (error) {
+        console.log("One of the operations failed:");
+        console.log(error);
+    }
+}
+
+</script>
+
+</body>
+</html>
